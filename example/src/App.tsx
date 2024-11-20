@@ -15,7 +15,7 @@ const data = {
   across: {
     1: {
       clue: 'one plus one',
-      answer: 'TWO',
+      answer: '***',
       row: 0,
       col: 0,
     },
@@ -23,7 +23,7 @@ const data = {
   down: {
     2: {
       clue: 'three minus two',
-      answer: 'ONE',
+      answer: '***',
       row: 0,
       col: 2,
     },
@@ -327,21 +327,21 @@ const Messages = styled.pre`
 function App() {
   const crossword = useRef<CrosswordImperative>(null);
 
-  const focus = useCallback<React.MouseEventHandler>((event) => {
-    crossword.current?.focus();
-  }, []);
+  // const focus = useCallback<React.MouseEventHandler>((event) => {
+  //   crossword.current?.focus();
+  // }, []);
 
-  const fillOneCell = useCallback<React.MouseEventHandler>((event) => {
-    crossword.current?.setGuess(0, 2, 'O');
-  }, []);
+  // const fillOneCell = useCallback<React.MouseEventHandler>((event) => {
+  //   crossword.current?.setGuess(0, 2, 'O');
+  // }, []);
 
-  const fillAllAnswers = useCallback<React.MouseEventHandler>((event) => {
-    crossword.current?.fillAllAnswers();
-  }, []);
+  // const fillAllAnswers = useCallback<React.MouseEventHandler>((event) => {
+  //   crossword.current?.fillAllAnswers();
+  // }, []);
 
-  const reset = useCallback<React.MouseEventHandler>((event) => {
-    crossword.current?.reset();
-  }, []);
+  // const reset = useCallback<React.MouseEventHandler>((event) => {
+  //   crossword.current?.reset();
+  // }, []);
 
   // We don't really *do* anything with callbacks from the Crossword component,
   // but we can at least show that they are happening.  You would want to do
@@ -349,9 +349,9 @@ function App() {
   const messagesRef = useRef<HTMLPreElement>(null);
   const [messages, setMessages] = useState<string[]>([]);
 
-  const clearMessages = useCallback<React.MouseEventHandler>((event) => {
-    setMessages([]);
-  }, []);
+  // const clearMessages = useCallback<React.MouseEventHandler>((event) => {
+  //   setMessages([]);
+  // }, []);
 
   const addMessage = useCallback((message: string) => {
     setMessages((m) => m.concat(`${message}\n`));
@@ -366,49 +366,49 @@ function App() {
   }, [messages]);
 
   // onCorrect is called with the direction, number, and the correct answer.
-  const onCorrect = useCallback<Required<CrosswordProps>['onCorrect']>(
-    (direction, number, answer) => {
-      addMessage(`onCorrect: "${direction}", "${number}", "${answer}"`);
-    },
-    [addMessage]
-  );
+  // const onCorrect = useCallback<Required<CrosswordProps>['onCorrect']>(
+  //   (direction, number, answer) => {
+  //     addMessage(`onCorrect: "${direction}", "${number}", "${answer}"`);
+  //   },
+  //   [addMessage]
+  // );
 
   // onLoadedCorrect is called with an array of the already-correct answers,
   // each element itself is an array with the same values as in onCorrect: the
   // direction, number, and the correct answer.
-  const onLoadedCorrect = useCallback<
-    Required<CrosswordProps>['onLoadedCorrect']
-  >(
-    (answers) => {
-      addMessage(
-        `onLoadedCorrect:\n${answers
-          .map(
-            ([direction, number, answer]) =>
-              `    - "${direction}", "${number}", "${answer}"`
-          )
-          .join('\n')}`
-      );
-    },
-    [addMessage]
-  );
+  // const onLoadedCorrect = useCallback<
+  //   Required<CrosswordProps>['onLoadedCorrect']
+  // >(
+  //   (answers) => {
+  //     addMessage(
+  //       `onLoadedCorrect:\n${answers
+  //         .map(
+  //           ([direction, number, answer]) =>
+  //             `    - "${direction}", "${number}", "${answer}"`
+  //         )
+  //         .join('\n')}`
+  //     );
+  //   },
+  //   [addMessage]
+  // );
 
   // onCrosswordCorrect is called with a truthy/falsy value.
-  const onCrosswordCorrect = useCallback<
-    Required<CrosswordProps>['onCrosswordCorrect']
-  >(
-    (isCorrect) => {
-      addMessage(`onCrosswordCorrect: ${JSON.stringify(isCorrect)}`);
-    },
-    [addMessage]
-  );
+  // const onCrosswordCorrect = useCallback<
+  //   Required<CrosswordProps>['onCrosswordCorrect']
+  // >(
+  //   (isCorrect) => {
+  //     addMessage(`onCrosswordCorrect: ${JSON.stringify(isCorrect)}`);
+  //   },
+  //   [addMessage]
+  // );
 
   // onCellChange is called with the row, column, and character.
-  const onCellChange = useCallback<Required<CrosswordProps>['onCellChange']>(
-    (row, col, char) => {
-      addMessage(`onCellChange: "${row}", "${col}", "${char}"`);
-    },
-    [addMessage]
-  );
+  // const onCellChange = useCallback<Required<CrosswordProps>['onCellChange']>(
+  //   (row, col, char) => {
+  //     addMessage(`onCellChange: "${row}", "${col}", "${char}"`);
+  //   },
+  //   [addMessage]
+  // );
 
   // all the same functionality, but for the decomposed CrosswordProvider
   const crosswordProvider = useRef<CrosswordProviderImperative>(null);
@@ -518,7 +518,7 @@ function App() {
         how to do so.
       </p>
 
-      <Commands>
+      {/* <Commands>
         <Command onClick={focus}>Focus</Command>
         <Command onClick={fillOneCell}>Fill the first letter of 2-down</Command>
         <Command onClick={fillAllAnswers}>Fill all answers</Command>
@@ -540,7 +540,7 @@ function App() {
         </CrosswordWrapper>
 
         <Messages ref={messagesRef}>{messages}</Messages>
-      </CrosswordMessageBlock>
+      </CrosswordMessageBlock> */}
 
       <p>
         And here’s a decomposed version, showing more control of the individual
@@ -567,6 +567,21 @@ function App() {
             onLoadedCorrect={onLoadedCorrectProvider}
             onCrosswordCorrect={onCrosswordCorrectProvider}
             onCellChange={onCellChangeProvider}
+            onAnswerIncorrect={(direction, number, answer, guess) => {
+              console.log({ direction }, { number }, { answer }, { guess });
+            }}
+            checkAnswer={async (guess, clue, row, col, answerLength) => {
+              return new Promise((resolve) => {
+                setTimeout(() => {
+                  console.log({ row }, { col }, { answerLength });
+                  if (guess === clue) {
+                    resolve(true);
+                  } else {
+                    resolve(false);
+                  }
+                }, 1000);
+              });
+            }}
           >
             <DirectionClues direction="across" />
             <CrosswordGrid />
@@ -576,7 +591,7 @@ function App() {
 
         <Messages ref={messagesProviderRef}>{messagesProvider}</Messages>
       </CrosswordMessageBlock>
-
+      {/* 
       <p>A proof-of-concept for non-square crosswords:</p>
 
       <CrosswordMessageBlock>
@@ -614,7 +629,7 @@ function App() {
           <CrosswordGrid />
           <DirectionClues direction="down" />
         </CrosswordProvider>
-      </IpuzWrapper>
+      </IpuzWrapper> */}
 
       {/* <CrosswordMessageBlock> */}
       {/* <CrosswordWrapper>

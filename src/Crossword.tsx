@@ -70,8 +70,6 @@ const crosswordPropTypes = {
   downLabel: PropTypes.string,
 };
 
-// @ts-expect-error TS doesn't allow non-optional props to be deleted, but we're
-// building this into a new type!
 delete crosswordPropTypes.children;
 
 // This somewhat non-obvious construction is to get the typings from
@@ -143,7 +141,7 @@ const Crossword = React.forwardRef<CrosswordImperative, CrosswordProps>(
 );
 
 Crossword.displayName = 'Crossword';
-Crossword.propTypes = crosswordPropTypes;
+// Crossword.propTypes = crosswordPropTypes;
 Crossword.defaultProps = {
   ...CrosswordProvider.defaultProps,
   acrossLabel: undefined,

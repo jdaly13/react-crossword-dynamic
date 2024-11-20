@@ -161,6 +161,8 @@ export const crosswordProviderPropTypes = {
    */
   onCellChange: PropTypes.func,
 
+  checkAnswer: PropTypes.func,
+
   /**
    * callback function called when a clue is selected
    */
@@ -192,7 +194,8 @@ export type CrosswordProviderProps = EnhancedProps<
       direction: Direction,
       number: string,
       correct: boolean,
-      answer: string
+      answer: string,
+      guess: string
     ) => void;
 
     /**
@@ -232,7 +235,8 @@ export type CrosswordProviderProps = EnhancedProps<
     onAnswerIncorrect?: (
       direction: Direction,
       number: string,
-      answer: string
+      answer: string,
+      guess: string
     ) => void;
 
     /**
@@ -269,6 +273,14 @@ export type CrosswordProviderProps = EnhancedProps<
      * callback function called when a clue is selected
      */
     onClueSelected?: (direction: Direction, number: string) => void;
+
+    checkAnswer?: (
+      userEntry: string,
+      clue: string,
+      row: number,
+      col: number,
+      answerLength: number
+    ) => Promise<boolean>;
   }
 >;
 
@@ -343,6 +355,7 @@ const CrosswordProvider = React.forwardRef<
       useStorage,
       storageKey,
       children,
+      checkAnswer,
     },
     ref
   ) => {
@@ -447,10 +460,18 @@ const CrosswordProvider = React.forwardRef<
         direction: Direction,
         number: string,
         correct: boolean,
-        answer: string
+        answer: string,
+        guess: string
       ) => {
+        console.log(
+          { direction },
+          { number },
+          { correct },
+          { answer },
+          { guess }
+        );
         if (onAnswerComplete) {
-          onAnswerComplete(direction, number, correct, answer);
+          onAnswerComplete(direction, number, correct, answer, guess);
         }
 
         if (correct) {
@@ -463,14 +484,14 @@ const CrosswordProvider = React.forwardRef<
             onCorrect(direction, number, answer);
           }
         } else if (onAnswerIncorrect) {
-          onAnswerIncorrect(direction, number, answer);
+          onAnswerIncorrect(direction, number, answer, guess);
         }
       },
       [onAnswerComplete, onAnswerCorrect, onAnswerIncorrect, onCorrect]
     );
 
     const checkCorrectness = useCallback(
-      (row: number, col: number) => {
+      async (row: number, col: number) => {
         const cell = getCellData(row, col);
         if (!cell.used) {
           // Because this is in an internal callback, and we only call it with a
@@ -480,9 +501,11 @@ const CrosswordProvider = React.forwardRef<
           throw new Error('unexpected unused cell');
         }
 
+        console.log({ cell });
+
         // check all the cells for both across and down answers that use this
         // cell
-        bothDirections.forEach((direction) => {
+        bothDirections.forEach(async (direction) => {
           const across = isAcross(direction);
           const number = cell[direction];
           if (!number) {
@@ -491,11 +514,17 @@ const CrosswordProvider = React.forwardRef<
 
           const info = data[direction][number];
 
+          console.log({ info });
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const clonedInfo = { ...info } as any;
+
           // We send correct/incorrect messages, but *only* if every cell in the
           // answer is filled out; there's no point in reporting "incorrect"
           // when the answer is simply incomplete.
           let complete = true;
           let correct = true;
+
+          clonedInfo.guess = [];
 
           for (let i = 0; i < info.answer.length; i++) {
             const checkCell = getCellData(
@@ -503,15 +532,41 @@ const CrosswordProvider = React.forwardRef<
               info.col + (across ? i : 0)
             ) as UsedCellData;
 
+            console.log({ checkCell });
+
             if (!checkCell.guess) {
               complete = false;
               correct = false;
               break;
             }
 
-            if (checkCell.guess !== checkCell.answer) {
+            if (checkCell.guess !== checkCell.answer && !checkAnswer) {
               correct = false;
             }
+
+            clonedInfo.guess.push(checkCell.guess);
+          }
+          if (checkAnswer) {
+            correct = await checkAnswer(
+              clonedInfo.guess.join(''),
+              clonedInfo.clue,
+              clonedInfo.row,
+              clonedInfo.col,
+              clonedInfo.answer.length
+            );
+          }
+
+          console.log({ clonedInfo });
+
+          if (complete) {
+            console.log('notifyAnswerComplete');
+            notifyAnswerComplete(
+              direction,
+              number,
+              correct,
+              info.answer,
+              clonedInfo.guess.join('')
+            );
           }
 
           // update the clue state
@@ -522,16 +577,13 @@ const CrosswordProvider = React.forwardRef<
                   (i) => i.number === number
                 );
                 if (clueInfo) {
+                  console.log('clueInfo', { ...clueInfo });
                   clueInfo.complete = complete;
                   clueInfo.correct = correct;
                 }
               }
             })
           );
-
-          if (complete) {
-            notifyAnswerComplete(direction, number, correct, info.answer);
-          }
         });
       },
       [data, getCellData, notifyAnswerComplete]
@@ -543,6 +595,7 @@ const CrosswordProvider = React.forwardRef<
         return;
       }
 
+      console.log({ checkQueue });
       checkQueue.forEach(({ row, col }) => checkCorrectness(row, col));
       setCheckQueue([]);
     }, [checkQueue, checkCorrectness]);
@@ -565,7 +618,7 @@ const CrosswordProvider = React.forwardRef<
             clues[direction].every((clueInfo) => clueInfo.correct)
           )
         );
-      // console.log('setting crossword correct', { clues, correct });
+      console.log('setting crossword correct', { clues, complete, correct });
       return { crosswordComplete: complete, crosswordCorrect: correct };
     }, [clues]);
 
@@ -1119,7 +1172,7 @@ const CrosswordProvider = React.forwardRef<
 export default CrosswordProvider;
 
 CrosswordProvider.displayName = 'CrosswordProvider';
-CrosswordProvider.propTypes = crosswordProviderPropTypes;
+// CrosswordProvider.propTypes = crosswordProviderPropTypes;
 CrosswordProvider.defaultProps = {
   theme: undefined,
   useStorage: true,
@@ -1134,4 +1187,5 @@ CrosswordProvider.defaultProps = {
   onCellChange: undefined,
   onClueSelected: undefined,
   children: undefined,
+  checkAnswer: undefined,
 };
