@@ -279,7 +279,9 @@ export type CrosswordProviderProps = EnhancedProps<
       clue: string,
       row: number,
       col: number,
-      answerLength: number
+      answerLength: number,
+      hintId: string,
+      seedPhraseEntryId: string
     ) => Promise<boolean>;
   }
 >;
@@ -552,7 +554,9 @@ const CrosswordProvider = React.forwardRef<
               clonedInfo.clue,
               clonedInfo.row,
               clonedInfo.col,
-              clonedInfo.answer.length
+              clonedInfo.answer.length,
+              clonedInfo.hintId,
+              clonedInfo.seedPhraseEntryId
             );
           }
 
