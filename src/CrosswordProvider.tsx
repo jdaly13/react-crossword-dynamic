@@ -505,12 +505,16 @@ const CrosswordProvider = React.forwardRef<
 
         console.log({ cell });
 
+        console.log({ bothDirections });
         // check all the cells for both across and down answers that use this
         // cell
         //bothDirections.forEach(async (direction) => {
         for (const direction of bothDirections) {
+          console.log({ direction });
           const across = isAcross(direction);
           const number = cell[direction];
+          const numberWithParsing = parseInt(cell[direction]);
+          console.log({ number }, { numberWithParsing });
           if (!number) {
             return;
           }
