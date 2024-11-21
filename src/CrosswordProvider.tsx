@@ -548,7 +548,7 @@ const CrosswordProvider = React.forwardRef<
 
             clonedInfo.guess.push(checkCell.guess);
           }
-          if (checkAnswer) {
+          if (checkAnswer && complete) {
             correct = await checkAnswer(
               clonedInfo.guess.join(''),
               clonedInfo.clue,
