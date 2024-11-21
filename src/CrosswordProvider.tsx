@@ -507,7 +507,8 @@ const CrosswordProvider = React.forwardRef<
 
         // check all the cells for both across and down answers that use this
         // cell
-        bothDirections.forEach(async (direction) => {
+        //bothDirections.forEach(async (direction) => {
+        for (const direction of bothDirections) {
           const across = isAcross(direction);
           const number = cell[direction];
           if (!number) {
@@ -560,8 +561,6 @@ const CrosswordProvider = React.forwardRef<
             );
           }
 
-          console.log({ clonedInfo });
-
           if (complete) {
             console.log('notifyAnswerComplete');
             notifyAnswerComplete(
@@ -574,6 +573,7 @@ const CrosswordProvider = React.forwardRef<
           }
 
           // update the clue state
+          console.log({ clonedInfo }, { correct }, { complete });
           setClues(
             produce((draft) => {
               if (draft) {
@@ -581,14 +581,14 @@ const CrosswordProvider = React.forwardRef<
                   (i) => i.number === number
                 );
                 if (clueInfo) {
-                  console.log('clueInfo', { ...clueInfo });
                   clueInfo.complete = complete;
                   clueInfo.correct = correct;
+                  console.log('clueInfo', { ...clueInfo });
                 }
               }
             })
           );
-        });
+        }
       },
       [data, getCellData, notifyAnswerComplete]
     );
