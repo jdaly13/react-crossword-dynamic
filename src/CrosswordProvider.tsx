@@ -871,6 +871,7 @@ const CrosswordProvider = React.forwardRef<
       console.log(
         JSON.parse(JSON.stringify(newGridData)),
         { storageKey },
+        { defaultStorageKey },
         'callLoadGuesses'
       );
       if (useStorage) {
