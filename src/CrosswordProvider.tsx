@@ -495,6 +495,7 @@ const CrosswordProvider = React.forwardRef<
     const checkCorrectness = useCallback(
       async (row: number, col: number) => {
         const cell = getCellData(row, col);
+        console.log({ cell });
         if (!cell.used) {
           // Because this is in an internal callback, and we only call it with a
           // valid cell (row/col), the throw line isn't testable... so we ignore
@@ -503,13 +504,10 @@ const CrosswordProvider = React.forwardRef<
           throw new Error('unexpected unused cell');
         }
 
-        console.log({ cell });
-
         // check all the cells for both across and down answers that use this
         // cell
         // bothDirections.forEach(async (direction) => {
         for (const direction of bothDirections) {
-          console.log({ direction });
           const across = isAcross(direction);
           const number = cell[direction];
           if (!number) {
@@ -563,7 +561,6 @@ const CrosswordProvider = React.forwardRef<
           }
 
           if (complete) {
-            console.log('notifyAnswerComplete');
             notifyAnswerComplete(
               direction,
               number,
@@ -860,6 +857,7 @@ const CrosswordProvider = React.forwardRef<
     // When the clues *input* data changes, reset/reload the player data
     useEffect(() => {
       // deep-clone the grid data...
+      console.log({ masterGridData });
       const newGridData = masterGridData.map((row) =>
         row.map((cell) => ({ ...cell }))
       );
@@ -870,6 +868,11 @@ const CrosswordProvider = React.forwardRef<
         down: masterClues.down.map((clue) => ({ ...clue })),
       };
 
+      console.log(
+        JSON.parse(JSON.stringify(newGridData)),
+        { storageKey },
+        'callLoadGuesses'
+      );
       if (useStorage) {
         loadGuesses(newGridData, storageKey || defaultStorageKey);
       }
@@ -912,7 +915,7 @@ const CrosswordProvider = React.forwardRef<
       if (gridData === null || !useStorage) {
         return;
       }
-
+      console.log({ gridData }, 'saveGuesses');
       saveGuesses(gridData, storageKey || defaultStorageKey);
     }, [gridData, storageKey, useStorage]);
 

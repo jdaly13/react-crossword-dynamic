@@ -184,6 +184,7 @@ export function clearGuesses(storageKey: string) {
     return;
   }
 
+  console.log('clearGuesses');
   window.localStorage.removeItem(storageKey);
 }
 
@@ -194,6 +195,7 @@ export function saveGuesses(gridData: GuessData, storageKey: string) {
   }
 
   const guesses = serializeGuesses(gridData);
+  console.log('saveGuesses', guesses, { gridData });
 
   const saveData = {
     date: Date.now(),
@@ -225,7 +227,9 @@ export function loadGuesses(gridData: GuessData, storageKey: string) {
     return;
   }
 
+  console.log('loadGuesses');
   const saveRaw = localStorage.getItem(storageKey);
+  console.log({ saveRaw });
   if (!saveRaw) {
     return;
   }
