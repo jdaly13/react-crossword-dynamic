@@ -194,8 +194,12 @@ export function saveGuesses(gridData: GuessData, storageKey: string) {
     return;
   }
 
+  if (!gridData.length) return false;
+
   const guesses = serializeGuesses(gridData);
   console.log('saveGuesses', guesses, { gridData });
+
+  if (!Object.keys(guesses).length) return false;
 
   const saveData = {
     date: Date.now(),
@@ -255,6 +259,7 @@ export function deserializeGuesses(
       (gridData[r][c] as UsedCellData).guess = val;
     }
   });
+  console.log({ gridData });
 }
 
 export function findCorrectAnswers(data: CluesInput, gridData: GuessData) {
