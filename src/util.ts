@@ -184,7 +184,6 @@ export function clearGuesses(storageKey: string) {
     return;
   }
 
-  console.log('clearGuesses');
   window.localStorage.removeItem(storageKey);
 }
 
@@ -197,7 +196,6 @@ export function saveGuesses(gridData: GuessData, storageKey: string) {
   if (!gridData.length) return false;
 
   const guesses = serializeGuesses(gridData);
-  console.log('saveGuesses', guesses, { gridData });
 
   if (!Object.keys(guesses).length) return false;
 
@@ -231,16 +229,15 @@ export function loadGuesses(gridData: GuessData, storageKey: string) {
     return;
   }
 
-  console.log('loadGuesses', { storageKey });
   const saveRaw = localStorage.getItem(storageKey);
-  console.log('testing', { [storageKey]: localStorage.getItem(storageKey) });
-  console.log({ saveRaw });
+  // console.log('testing', { [storageKey]: localStorage.getItem(storageKey) });
+  // console.log({ saveRaw });
   if (!saveRaw) {
     return;
   }
 
   const saveData = JSON.parse(saveRaw);
-  console.log({ saveData });
+  // console.log({ saveData });
 
   // TODO: check date for expiration?
   deserializeGuesses(gridData, saveData.guesses);
@@ -259,7 +256,6 @@ export function deserializeGuesses(
       (gridData[r][c] as UsedCellData).guess = val;
     }
   });
-  console.log({ gridData });
 }
 
 export function findCorrectAnswers(data: CluesInput, gridData: GuessData) {

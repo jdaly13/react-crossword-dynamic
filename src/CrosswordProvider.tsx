@@ -465,13 +465,6 @@ const CrosswordProvider = React.forwardRef<
         answer: string,
         guess: string
       ) => {
-        console.log(
-          { direction },
-          { number },
-          { correct },
-          { answer },
-          { guess }
-        );
         if (onAnswerComplete) {
           onAnswerComplete(direction, number, correct, answer, guess);
         }
@@ -495,7 +488,6 @@ const CrosswordProvider = React.forwardRef<
     const checkCorrectness = useCallback(
       async (row: number, col: number) => {
         const cell = getCellData(row, col);
-        console.log({ cell });
         if (!cell.used) {
           // Because this is in an internal callback, and we only call it with a
           // valid cell (row/col), the throw line isn't testable... so we ignore
@@ -516,7 +508,7 @@ const CrosswordProvider = React.forwardRef<
 
           const info = data[direction][number];
 
-          console.log({ info });
+          // console.log({ info });
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const clonedInfo = { ...info } as any;
 
@@ -534,7 +526,7 @@ const CrosswordProvider = React.forwardRef<
               info.col + (across ? i : 0)
             ) as UsedCellData;
 
-            console.log({ checkCell });
+            // console.log({ checkCell });
 
             if (!checkCell.guess) {
               complete = false;
@@ -571,7 +563,7 @@ const CrosswordProvider = React.forwardRef<
           }
 
           // update the clue state
-          console.log({ clonedInfo }, { correct }, { complete });
+          // console.log({ clonedInfo }, { correct }, { complete });
           setClues(
             produce((draft) => {
               if (draft) {
@@ -581,7 +573,7 @@ const CrosswordProvider = React.forwardRef<
                 if (clueInfo) {
                   clueInfo.complete = complete;
                   clueInfo.correct = correct;
-                  console.log('clueInfo', { ...clueInfo });
+                  // console.log('clueInfo', { ...clueInfo });
                 }
               }
             })
@@ -597,7 +589,6 @@ const CrosswordProvider = React.forwardRef<
         return;
       }
 
-      console.log({ checkQueue });
       checkQueue.forEach(({ row, col }) => checkCorrectness(row, col));
       setCheckQueue([]);
     }, [checkQueue, checkCorrectness]);
@@ -620,7 +611,7 @@ const CrosswordProvider = React.forwardRef<
             clues[direction].every((clueInfo) => clueInfo.correct)
           )
         );
-      console.log('setting crossword correct', { clues, complete, correct });
+      // console.log('setting crossword correct', { clues, complete, correct });
       return { crosswordComplete: complete, crosswordCorrect: correct };
     }, [clues]);
 
@@ -857,7 +848,6 @@ const CrosswordProvider = React.forwardRef<
     // When the clues *input* data changes, reset/reload the player data
     useEffect(() => {
       // deep-clone the grid data...
-      console.log({ masterGridData });
       const newGridData = masterGridData.map((row) =>
         row.map((cell) => ({ ...cell }))
       );
@@ -868,12 +858,6 @@ const CrosswordProvider = React.forwardRef<
         down: masterClues.down.map((clue) => ({ ...clue })),
       };
 
-      console.log(
-        JSON.parse(JSON.stringify(newGridData)),
-        { storageKey },
-        { defaultStorageKey },
-        'callLoadGuesses'
-      );
       if (useStorage) {
         loadGuesses(newGridData, storageKey || defaultStorageKey);
       }
@@ -916,7 +900,6 @@ const CrosswordProvider = React.forwardRef<
       if (gridData === null || !useStorage) {
         return;
       }
-      console.log({ gridData }, 'saveGuesses');
       saveGuesses(gridData, storageKey || defaultStorageKey);
     }, [gridData, storageKey, useStorage]);
 
